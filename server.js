@@ -5,13 +5,14 @@ const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
-const PORT = 3000;
+
+const PORT = process.env.PORT || 3000;
 
 const corsOptions = {
   origin: "*", // Allow all origins
 };
 
-app.use(cors());
+app.use(cors(corsOptions));
 
 // Astronomy API
 
@@ -28,8 +29,10 @@ app.get("/moon-phase", async (req, res) => {
       `https://api.astronomyapi.com/api/v2/studio/star-chart`,
       {
         headers: {
+          "Access-Control-Allow-Origin": "*",
           "Cache-Control": "no-cache",
           "Content-Type": "application/json",
+          Host: "fcc.lol",
           Accept: "*/*",
           Authorization: `Basic ${AUTH_STRING}`,
         },
@@ -93,5 +96,5 @@ app.get("/moon-phase", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server is running on ${PORT}`);
 });
