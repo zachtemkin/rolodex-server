@@ -57,10 +57,9 @@ app.get("/moon-phase", async (req, res) => {
     const imageUrl = response.data.data.imageUrl;
 
     const image_png = await Jimp.read(imageUrl);
-    const image_bmp = await image_png.writeAsync("moon-phase.bmp");
-    const buffer = await image_bmp.getBufferAsync(Jimp.MIME_BMP);
+    const buffer = await image_png.getBufferAsync(Jimp.MIME_BMP);
 
-    res.set("Content-Type", Jimp.MIME_PNG);
+    res.set("Content-Type", Jimp.MIME_BMP);
     res.send(buffer);
 
     // ----- unsplash
