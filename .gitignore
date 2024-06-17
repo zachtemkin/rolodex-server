@@ -9,3 +9,6 @@ node_modules/
 
 # configuration files
 .nvmrc
+
+# ignore images
+*.bmp
