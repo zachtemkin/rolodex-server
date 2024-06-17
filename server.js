@@ -21,10 +21,9 @@ const AUTH_STRING = Buffer.from(
   `${process.env.ASTRONOMY_APP_ID}:${process.env.ASTRONOMY_APP_SECRET}`
 ).toString("base64");
 
-// const unsplashAccesskey = process.env.UNSPLASH_ACCESS_KEY;
-
 app.get("/moon-phase", async (req, res) => {
-  // const query = req.query.query || "nature";
+  const LAT = parseFloat(req.query.lat) || 6.56774;
+  const LON = parseFloat(req.query.lon) || 79.88956;
   try {
     const response = await axios.post(
       `https://api.astronomyapi.com/api/v2/studio/moon-phase`,
@@ -38,8 +37,8 @@ app.get("/moon-phase", async (req, res) => {
           textColor: "black",
         },
         observer: {
-          latitude: 6.56774,
-          longitude: 79.88956,
+          latitude: LAT,
+          longitude: LON,
           date: "2020-11-01",
         },
         view: {
@@ -61,21 +60,30 @@ app.get("/moon-phase", async (req, res) => {
 
     res.set("Content-Type", Jimp.MIME_BMP);
     res.send(buffer);
-
-    // ----- unsplash
-
-    // const response = await axios.get(`https://api.unsplash.com/photos/random`, {
-    //   params: { query },
-    //   headers: {
-    //     Authorization: `Client-ID ${unsplashAccesskey}`,
-    //   },
-    // });
-
-    // const imageUrl = response.data.urls.full;
-
-    // ----- unsplash
   } catch (error) {
     res.status(500).send(`Error fetching or processing the image ${error}`);
+  }
+});
+
+const unsplashAccesskey = process.env.UNSPLASH_ACCESS_KEY;
+
+app.get("/unsplash", async (req, res) => {
+  const query = req.query.query || "nature";
+  try {
+    const response = await axios.get(`https://api.unsplash.com/photos/random`, {
+      params: { query, orientation: "squarish" },
+      headers: {
+        Authorization: `Client-ID ${unsplashAccesskey}`,
+      },
+    });
+    const imageUrl = response.data.urls.full;
+    const image_png = await Jimp.read(imageUrl);
+    const buffer = await image_png.getBufferAsync(Jimp.MIME_BMP);
+
+    res.set("Content-Type", Jimp.MIME_BMP);
+    res.send(buffer);
+  } catch (error) {
+    res.status(500).send(`Error getting image ${error}`);
   }
 });
 
