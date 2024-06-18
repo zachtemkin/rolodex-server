@@ -56,7 +56,10 @@ app.get("/moon-phase", async (req, res) => {
     const imageUrl = response.data.data.imageUrl;
 
     const image_png = await Jimp.read(imageUrl);
-    const buffer = await image_png.getBufferAsync(Jimp.MIME_BMP);
+    const image_cropped = image_png
+      .crop(50, 50, 100, 100)
+      .resize(480, 480, Jimp.RESIZE_BICUBIC);
+    const buffer = await image_cropped.getBufferAsync(Jimp.MIME_BMP);
 
     res.set("Content-Type", Jimp.MIME_BMP);
     res.send(buffer);
@@ -68,7 +71,7 @@ app.get("/moon-phase", async (req, res) => {
 const unsplashAccesskey = process.env.UNSPLASH_ACCESS_KEY;
 
 app.get("/unsplash", async (req, res) => {
-  const query = req.query.query || "nature";
+  const query = req.query.query || "moon";
   try {
     const response = await axios.get(`https://api.unsplash.com/photos/random`, {
       params: { query, orientation: "squarish" },
@@ -78,7 +81,15 @@ app.get("/unsplash", async (req, res) => {
     });
     const imageUrl = response.data.urls.full;
     const image_png = await Jimp.read(imageUrl);
-    const buffer = await image_png.getBufferAsync(Jimp.MIME_BMP);
+    const cropOptions = {
+      tolerance: "0px",
+      cropSymmetric: true,
+      leaveBorder: false,
+    };
+    const image_cropped = image_png
+      .autocrop(cropOptions)
+      .resize(480, 480, Jimp.RESIZE_BICUBIC);
+    const buffer = await image_cropped.getBufferAsync(Jimp.MIME_BMP);
 
     res.set("Content-Type", Jimp.MIME_BMP);
     res.send(buffer);
