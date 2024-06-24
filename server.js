@@ -17,6 +17,9 @@ app.use(cors(corsOptions));
 
 // Astronomy API
 
+const currentDate = new Date();
+console.log(currentDate);
+
 const AUTH_STRING = Buffer.from(
   `${process.env.ASTRONOMY_APP_ID}:${process.env.ASTRONOMY_APP_SECRET}`
 ).toString("base64");
@@ -39,7 +42,7 @@ app.get("/moon-phase", async (req, res) => {
         observer: {
           latitude: LAT,
           longitude: LON,
-          date: "2020-11-01",
+          date: currentDate,
         },
         view: {
           type: "portrait-simple",
