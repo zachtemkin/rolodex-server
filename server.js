@@ -18,7 +18,6 @@ app.use(cors(corsOptions));
 // Astronomy API
 
 const currentDate = new Date();
-console.log(currentDate);
 
 const AUTH_STRING = Buffer.from(
   `${process.env.ASTRONOMY_APP_ID}:${process.env.ASTRONOMY_APP_SECRET}`
@@ -60,7 +59,7 @@ app.get("/moon-phase", async (req, res) => {
 
     const image_png = await Jimp.read(imageUrl);
     const image_cropped = image_png
-      .crop(50, 50, 100, 100)
+      .crop(55, 55, 90, 90)
       .resize(480, 480, Jimp.RESIZE_BICUBIC);
     const buffer = await image_cropped.getBufferAsync(Jimp.MIME_BMP);
 
