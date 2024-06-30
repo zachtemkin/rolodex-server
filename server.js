@@ -81,7 +81,7 @@ app.get("/unsplash", async (req, res) => {
         Authorization: `Client-ID ${unsplashAccesskey}`,
       },
     });
-    const imageUrl = response.data.urls.full;
+    const imageUrl = response.data.urls.small;
     const image_png = await Jimp.read(imageUrl);
     const cropOptions = {
       tolerance: "0px",
