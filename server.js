@@ -23,6 +23,10 @@ const AUTH_STRING = Buffer.from(
   `${process.env.ASTRONOMY_APP_ID}:${process.env.ASTRONOMY_APP_SECRET}`
 ).toString("base64");
 
+const now = new Date();
+const DATE = now.toISOString().split("T")[0];
+const TIME = now.toTimeString().split(" ")[0];
+
 app.get("/moon-phase", async (req, res) => {
   const LAT = parseFloat(req.query.lat) || 6.56774;
   const LON = parseFloat(req.query.lon) || 79.88956;
@@ -67,6 +71,29 @@ app.get("/moon-phase", async (req, res) => {
     res.send(buffer);
   } catch (error) {
     res.status(500).send(`Error fetching or processing the image ${error}`);
+  }
+});
+
+app.get("/nasa-moon", async (req, res) => {
+  const dateString = now.toISOString().split(".")[0];
+  let parts = dateString.split(":");
+  parts.pop();
+  const formmatedDateString = parts.join(":");
+
+  try {
+    const response = await axios.get(
+      `https://svs.gsfc.nasa.gov/api/dialamoon/${formmatedDateString}`
+    );
+
+    const imageUrl = response.data.image.url;
+    const originalImage = await Jimp.read(imageUrl);
+    const resizedImage = originalImage.resize(480, 480, Jimp.RESIZE_BICUBIC);
+    const buffer = await resizedImage.getBufferAsync(Jimp.MIME_BMP);
+
+    res.set("Content-Type", Jimp.MIME_BMP);
+    res.status(200).send(buffer);
+  } catch (error) {
+    res.status(500).send(`Error fetching data: ${error}`);
   }
 });
 
