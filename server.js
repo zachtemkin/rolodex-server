@@ -10,72 +10,15 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 const corsOptions = {
-  origin: "*", // Allow all origins
+  origin: "*",
 };
 
 app.use(cors(corsOptions));
 
-// Astronomy API
-
 const currentDate = new Date();
 
-const AUTH_STRING = Buffer.from(
-  `${process.env.ASTRONOMY_APP_ID}:${process.env.ASTRONOMY_APP_SECRET}`
-).toString("base64");
-
-const now = new Date();
-const DATE = now.toISOString().split("T")[0];
-const TIME = now.toTimeString().split(" ")[0];
-
-app.get("/moon-phase", async (req, res) => {
-  const LAT = parseFloat(req.query.lat) || 6.56774;
-  const LON = parseFloat(req.query.lon) || 79.88956;
-  try {
-    const response = await axios.post(
-      `https://api.astronomyapi.com/api/v2/studio/moon-phase`,
-      {
-        format: "png",
-        style: {
-          moonStyle: "default",
-          backgroundStyle: "solid",
-          backgroundColor: "black",
-          headingColor: "black",
-          textColor: "black",
-        },
-        observer: {
-          latitude: LAT,
-          longitude: LON,
-          date: currentDate,
-        },
-        view: {
-          type: "portrait-simple",
-          orientation: "north-up",
-        },
-      },
-      {
-        headers: {
-          Authorization: `Basic ${AUTH_STRING}`,
-        },
-      }
-    );
-
-    const imageUrl = response.data.data.imageUrl;
-
-    const image_png = await Jimp.read(imageUrl);
-    const image_cropped = image_png
-      .crop(55, 55, 90, 90)
-      .resize(480, 480, Jimp.RESIZE_BICUBIC);
-    const buffer = await image_cropped.getBufferAsync(Jimp.MIME_BMP);
-
-    res.set("Content-Type", Jimp.MIME_BMP);
-    res.send(buffer);
-  } catch (error) {
-    res.status(500).send(`Error fetching or processing the image ${error}`);
-  }
-});
-
-app.get("/nasa-moon", async (req, res) => {
-  const dateString = now.toISOString().split(".")[0];
+app.get("/moon-image", async (req, res) => {
+  const dateString = currentDate.toISOString().split(".")[0];
   let parts = dateString.split(":");
   parts.pop();
   const formmatedDateString = parts.join(":");
