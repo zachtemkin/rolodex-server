@@ -15,9 +15,8 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-const currentDate = new Date();
-
 app.get("/moon-image", async (req, res) => {
+  const currentDate = new Date();
   const dateString = currentDate.toISOString().split(".")[0];
   let parts = dateString.split(":");
   parts.pop();
@@ -41,6 +40,7 @@ app.get("/moon-image", async (req, res) => {
 });
 
 app.get("/moon-data", async (req, res) => {
+  const currentDate = new Date();
   const dateString = currentDate.toISOString().split(".")[0];
   let parts = dateString.split(":");
   parts.pop();
