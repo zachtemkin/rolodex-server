@@ -40,6 +40,34 @@ app.get("/moon-image", async (req, res) => {
   }
 });
 
+app.get("/moon-data", async (req, res) => {
+  const dateString = currentDate.toISOString().split(".")[0];
+  let parts = dateString.split(":");
+  parts.pop();
+  const formmatedDateString = parts.join(":");
+
+  try {
+    const response = await axios.get(
+      `https://svs.gsfc.nasa.gov/api/dialamoon/${formmatedDateString}`
+    );
+
+    const data = response.data;
+    const { time, phase, obscuration, age } = data;
+
+    const moonInfo = {
+      time: time,
+      phase: phase,
+      obscuration: obscuration,
+      age: age,
+    };
+
+    res.set("Content-Type", "application/json");
+    res.status(200).send(moonInfo);
+  } catch (error) {
+    res.status(500).send(`Error fetching data: ${error}`);
+  }
+});
+
 const unsplashAccesskey = process.env.UNSPLASH_ACCESS_KEY;
 
 app.get("/unsplash", async (req, res) => {
