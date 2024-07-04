@@ -15,16 +15,21 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-app.get("/moon-image", async (req, res) => {
+const getCurrentDate = () => {
   const currentDate = new Date();
   const dateString = currentDate.toISOString().split(".")[0];
   let parts = dateString.split(":");
   parts.pop();
   const formmatedDateString = parts.join(":");
+  return formmatedDateString;
+};
+
+app.get("/moon-image", async (req, res) => {
+  const date = getCurrentDate();
 
   try {
     const response = await axios.get(
-      `https://svs.gsfc.nasa.gov/api/dialamoon/${formmatedDateString}`
+      `https://svs.gsfc.nasa.gov/api/dialamoon/${date}`
     );
 
     const imageUrl = response.data.image.url;
@@ -39,16 +44,59 @@ app.get("/moon-image", async (req, res) => {
   }
 });
 
-app.get("/moon-data", async (req, res) => {
-  const currentDate = new Date();
-  const dateString = currentDate.toISOString().split(".")[0];
-  let parts = dateString.split(":");
-  parts.pop();
-  const formmatedDateString = parts.join(":");
+app.get("/moon-image-pixelated", async (req, res) => {
+  const date = getCurrentDate();
+  console.log(date);
 
   try {
     const response = await axios.get(
-      `https://svs.gsfc.nasa.gov/api/dialamoon/${formmatedDateString}`
+      `https://svs.gsfc.nasa.gov/api/dialamoon/${date}`
+    );
+
+    const imageUrl = response.data.image.url;
+    const originalImage = await Jimp.read(imageUrl);
+    const shrunkenImage = originalImage.resize(32, 32, Jimp.RESIZE_BICUBIC);
+    const pixelImage = shrunkenImage.resize(
+      480,
+      480,
+      Jimp.RESIZE_NEAREST_NEIGHBOR
+    );
+    const buffer = await pixelImage.getBufferAsync(Jimp.MIME_BMP);
+
+    res.set("Content-Type", Jimp.MIME_BMP);
+    res.status(200).send(buffer);
+  } catch (error) {
+    res.status(500).send(`Error fetching data: ${error}`);
+  }
+});
+
+app.get("/moon-image-small", async (req, res) => {
+  const date = getCurrentDate();
+  console.log(date);
+
+  try {
+    const response = await axios.get(
+      `https://svs.gsfc.nasa.gov/api/dialamoon/${date}`
+    );
+
+    const imageUrl = response.data.image.url;
+    const originalImage = await Jimp.read(imageUrl);
+    const shrunkenImage = originalImage.resize(32, 32, Jimp.RESIZE_BICUBIC);
+    const buffer = await shrunkenImage.getBufferAsync(Jimp.MIME_BMP);
+
+    res.set("Content-Type", Jimp.MIME_BMP);
+    res.status(200).send(buffer);
+  } catch (error) {
+    res.status(500).send(`Error fetching data: ${error}`);
+  }
+});
+
+app.get("/moon-data", async (req, res) => {
+  const date = getCurrentDate();
+
+  try {
+    const response = await axios.get(
+      `https://svs.gsfc.nasa.gov/api/dialamoon/${date}`
     );
 
     const data = response.data;
