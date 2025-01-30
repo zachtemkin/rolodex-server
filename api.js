@@ -1,11 +1,11 @@
-const express = require("express");
-const http = require("https");
-const axios = require("axios");
-const Jimp = require("jimp");
-const cors = require("cors");
-require("dotenv").config();
+import express from "express";
+import serverless from "serverless-http";
+import axios from "axios";
+import Jimp from "jimp";
+import cors from "cors";
+import dotenv from "dotenv";
 
-const serverless = require("serverless-http");
+dotenv.config();
 
 const api = express();
 const router = express.Router();
@@ -149,7 +149,7 @@ router.get("/unsplash", async (req, res) => {
   }
 });
 
-router.listen(PORT, () => {
+api.listen(PORT, () => {
   console.log(`Server is running on ${PORT}`);
 });
 
