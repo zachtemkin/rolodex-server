@@ -12,3 +12,5 @@ node_modules/
 
 # ignore images
 *.bmp
+# Local Netlify folder
+.netlify

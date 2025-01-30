@@ -5,7 +5,10 @@ const Jimp = require("jimp");
 const cors = require("cors");
 require("dotenv").config();
 
-const app = express();
+const serverless = require("serverless-http");
+
+const api = express();
+const router = express.Router();
 
 const PORT = process.env.PORT || 3000;
 
@@ -13,7 +16,7 @@ const corsOptions = {
   origin: "*",
 };
 
-app.use(cors(corsOptions));
+router.use(cors(corsOptions));
 
 const getCurrentDate = () => {
   const currentDate = new Date();
@@ -24,7 +27,7 @@ const getCurrentDate = () => {
   return formmatedDateString;
 };
 
-app.get("/moon-image", async (req, res) => {
+router.get("/moon-image", async (req, res) => {
   const date = getCurrentDate();
 
   try {
@@ -44,7 +47,7 @@ app.get("/moon-image", async (req, res) => {
   }
 });
 
-app.get("/moon-image-pixelated", async (req, res) => {
+router.get("/moon-image-pixelated", async (req, res) => {
   const date = getCurrentDate();
   console.log(date);
 
@@ -70,7 +73,7 @@ app.get("/moon-image-pixelated", async (req, res) => {
   }
 });
 
-app.get("/moon-image-small", async (req, res) => {
+router.get("/moon-image-small", async (req, res) => {
   const date = getCurrentDate();
   console.log(date);
 
@@ -91,7 +94,7 @@ app.get("/moon-image-small", async (req, res) => {
   }
 });
 
-app.get("/moon-data", async (req, res) => {
+router.get("/moon-data", async (req, res) => {
   const date = getCurrentDate();
 
   try {
@@ -118,7 +121,7 @@ app.get("/moon-data", async (req, res) => {
 
 const unsplashAccesskey = process.env.UNSPLASH_ACCESS_KEY;
 
-app.get("/unsplash", async (req, res) => {
+router.get("/unsplash", async (req, res) => {
   const query = req.query.query || "moon";
   try {
     const response = await axios.get(`https://api.unsplash.com/photos/random`, {
@@ -146,6 +149,10 @@ app.get("/unsplash", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+router.listen(PORT, () => {
   console.log(`Server is running on ${PORT}`);
 });
+
+api.use("/api/", router);
+
+export const handler = serverless(api);

@@ -2,10 +2,10 @@
   "name": "rolodex-server",
   "version": "1.0.0",
   "description": "A server to provide data and images to the rolodex device",
-  "main": "server.js",
+  "main": "api.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+    "start": "node api.js",
+    "dev": "nodemon api.js"
   },
   "author": "Zachary Temkin",
   "license": "ISC",
@@ -13,9 +13,10 @@
     "axios": "^1.7.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^4.19.2",
+    "express": "^4.21.2",
     "jimp": "^0.22.12",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "serverless-http": "^3.2.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"
