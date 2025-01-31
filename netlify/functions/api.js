@@ -10,7 +10,7 @@ dotenv.config();
 const api = express();
 const router = express.Router();
 
-const PORT = process.env.PORT || 3000;
+// const PORT = process.env.PORT || 3000;
 
 const corsOptions = {
   origin: "*",
@@ -40,10 +40,13 @@ router.get("/moon-image", async (req, res) => {
     const resizedImage = originalImage.resize(480, 480, Jimp.RESIZE_BICUBIC);
     const buffer = await resizedImage.getBufferAsync(Jimp.MIME_BMP);
 
-    res.set("Content-Type", Jimp.MIME_BMP);
+    res.set("Cache-Control", "public, max-age=300");
+    res.set("Content-Type", "image/bmp");
+    res.set("Content-Length", buffer.length);
     res.status(200).send(buffer);
   } catch (error) {
-    res.status(500).send(`Error fetching data: ${error}`);
+    console.error("Error details:", error);
+    res.status(500).send(`Error fetching data: ${error.message}`);
   }
 });
 
@@ -149,9 +152,9 @@ router.get("/unsplash", async (req, res) => {
   }
 });
 
-api.listen(PORT, () => {
-  console.log(`Server is running on ${PORT}`);
-});
+// api.listen(PORT, () => {
+//   console.log(`Server is running on ${PORT}`);
+// });
 
 api.use("/api/", router);
 
