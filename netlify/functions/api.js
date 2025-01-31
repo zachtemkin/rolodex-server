@@ -50,7 +50,7 @@ router.get("/moon-image", async (req, res) => {
   }
 });
 
-router.get("/moon-image-pixelated", async (req, res) => {
+router.get("/moon-image-pix", async (req, res) => {
   const date = getCurrentDate();
   console.log(date);
 
@@ -142,13 +142,28 @@ router.get("/unsplash", async (req, res) => {
     };
     const image_cropped = image_png
       .autocrop(cropOptions)
-      .resize(480, 480, Jimp.RESIZE_BICUBIC);
+      .resize(48, 48, Jimp.RESIZE_BICUBIC);
     const buffer = await image_cropped.getBufferAsync(Jimp.MIME_BMP);
 
     res.set("Content-Type", Jimp.MIME_BMP);
     res.send(buffer);
   } catch (error) {
     res.status(500).send(`Error getting image ${error}`);
+  }
+});
+
+router.get("/hold", async (req, res) => {
+  try {
+    const width = req.query.width || 50;
+    const height = req.query.height || 50;
+    const imageUrl = `https://placehold.co/50x50`;
+
+    const response = await axios.get(imageUrl, { responseType: "arraybuffer" });
+
+    res.set("Content-Type", "image/jpeg");
+    res.send(response.data);
+  } catch (error) {
+    res.status(500).send(`Error getting placehold image: ${error}`);
   }
 });
 
