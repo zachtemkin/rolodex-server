@@ -1,5 +1,4 @@
 import express from "express";
-import serverless from "serverless-http";
 import axios from "axios";
 import Jimp from "jimp";
 import cors from "cors";
@@ -7,16 +6,14 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const api = express();
-const router = express.Router();
-
-// const PORT = process.env.PORT || 3000;
+const app = express();
+const PORT = process.env.PORT || 3000;
 
 const corsOptions = {
   origin: "*",
 };
 
-router.use(cors(corsOptions));
+app.use(cors(corsOptions));
 
 const getCurrentDate = () => {
   const currentDate = new Date();
@@ -27,7 +24,7 @@ const getCurrentDate = () => {
   return formmatedDateString;
 };
 
-router.get("/moon-image", async (req, res) => {
+app.get("/moon-image", async (req, res) => {
   const date = getCurrentDate();
 
   try {
@@ -50,7 +47,7 @@ router.get("/moon-image", async (req, res) => {
   }
 });
 
-router.get("/moon-image-pix", async (req, res) => {
+app.get("/moon-image-pix", async (req, res) => {
   const date = getCurrentDate();
   console.log(date);
 
@@ -76,7 +73,7 @@ router.get("/moon-image-pix", async (req, res) => {
   }
 });
 
-router.get("/moon-image-small", async (req, res) => {
+app.get("/moon-image-small", async (req, res) => {
   const date = getCurrentDate();
   console.log(date);
 
@@ -97,7 +94,7 @@ router.get("/moon-image-small", async (req, res) => {
   }
 });
 
-router.get("/moon-data", async (req, res) => {
+app.get("/moon-data", async (req, res) => {
   const date = getCurrentDate();
 
   try {
@@ -122,9 +119,36 @@ router.get("/moon-data", async (req, res) => {
   }
 });
 
+app.get("/test", async (req, res) => {
+  try {
+    const moonResponse = await axios.get(
+      `https://svs.gsfc.nasa.gov/api/dialamoon/${getCurrentDate()}`
+    );
+
+    const imageUrl = moonResponse.data.image.url;
+    console.log("Fetching image from:", imageUrl);
+
+    const imageResponse = await axios.get(imageUrl, {
+      responseType: "arraybuffer",
+    });
+
+    res.set({
+      "Content-Type": "image/jpeg",
+      "Content-Length": imageResponse.data.length,
+      "Cache-Control": "no-store, no-cache, must-revalidate, private",
+      Pragma: "no-cache",
+    });
+
+    return res.status(200).send(imageResponse.data);
+  } catch (error) {
+    console.error("Failed:", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 const unsplashAccesskey = process.env.UNSPLASH_ACCESS_KEY;
 
-router.get("/unsplash", async (req, res) => {
+app.get("/unsplash", async (req, res) => {
   const query = req.query.query || "moon";
   try {
     const response = await axios.get(`https://api.unsplash.com/photos/random`, {
@@ -152,25 +176,6 @@ router.get("/unsplash", async (req, res) => {
   }
 });
 
-router.get("/hold", async (req, res) => {
-  try {
-    const width = req.query.width || 50;
-    const height = req.query.height || 50;
-    const imageUrl = `https://placehold.co/50x50`;
-
-    const response = await axios.get(imageUrl, { responseType: "arraybuffer" });
-
-    res.set("Content-Type", "image/jpeg");
-    res.send(response.data);
-  } catch (error) {
-    res.status(500).send(`Error getting placehold image: ${error}`);
-  }
+app.listen(PORT, () => {
+  console.log(`Server is running on ${PORT}`);
 });
-
-// api.listen(PORT, () => {
-//   console.log(`Server is running on ${PORT}`);
-// });
-
-api.use("/api/", router);
-
-export const handler = serverless(api);
