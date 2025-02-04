@@ -35,10 +35,10 @@ app.get("/moon-image", async (req, res) => {
     const imageUrl = response.data.image.url;
     const originalImage = await Jimp.read(imageUrl);
     const resizedImage = originalImage.resize(480, 480, Jimp.RESIZE_BICUBIC);
-    const buffer = await resizedImage.getBufferAsync(Jimp.MIME_BMP);
+    const buffer = await resizedImage.getBufferAsync(Jimp.MIME_JPEG);
 
     res.set("Cache-Control", "public, max-age=300");
-    res.set("Content-Type", "image/bmp");
+    res.set("Content-Type", "image/jpeg");
     res.set("Content-Length", buffer.length);
     res.status(200).send(buffer);
   } catch (error) {
@@ -119,33 +119,6 @@ app.get("/moon-data", async (req, res) => {
   }
 });
 
-app.get("/test", async (req, res) => {
-  try {
-    const moonResponse = await axios.get(
-      `https://svs.gsfc.nasa.gov/api/dialamoon/${getCurrentDate()}`
-    );
-
-    const imageUrl = moonResponse.data.image.url;
-    console.log("Fetching image from:", imageUrl);
-
-    const imageResponse = await axios.get(imageUrl, {
-      responseType: "arraybuffer",
-    });
-
-    res.set({
-      "Content-Type": "image/jpeg",
-      "Content-Length": imageResponse.data.length,
-      "Cache-Control": "no-store, no-cache, must-revalidate, private",
-      Pragma: "no-cache",
-    });
-
-    return res.status(200).send(imageResponse.data);
-  } catch (error) {
-    console.error("Failed:", error.message);
-    return res.status(500).json({ error: error.message });
-  }
-});
-
 const unsplashAccesskey = process.env.UNSPLASH_ACCESS_KEY;
 
 app.get("/unsplash", async (req, res) => {
@@ -166,10 +139,10 @@ app.get("/unsplash", async (req, res) => {
     };
     const image_cropped = image_png
       .autocrop(cropOptions)
-      .resize(48, 48, Jimp.RESIZE_BICUBIC);
-    const buffer = await image_cropped.getBufferAsync(Jimp.MIME_BMP);
+      .resize(480, 480, Jimp.RESIZE_BICUBIC);
+    const buffer = await image_cropped.getBufferAsync(Jimp.MIME_JPEG);
 
-    res.set("Content-Type", Jimp.MIME_BMP);
+    res.set("Content-Type", Jimp.MIME_JPEG);
     res.send(buffer);
   } catch (error) {
     res.status(500).send(`Error getting image ${error}`);
