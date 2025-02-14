@@ -161,7 +161,37 @@ app.get("/moon-image-bytes", async (req, res) => {
     const originalImage = await Jimp.read(imageUrl);
 
     // Scale to 480x480
-    const processedImage = originalImage.resize(32, 32, Jimp.RESIZE_BICUBIC);
+    const processedImage = originalImage.resize(48, 48, Jimp.RESIZE_BICUBIC);
+
+    // Get buffer as JPEG and convert to base64
+    const buffer = await processedImage.getBufferAsync(Jimp.MIME_JPEG);
+    const base64String = buffer.toString("base64");
+
+    res.set("Content-Type", "application/json");
+    res.status(200).json({
+      width: 480,
+      height: 480,
+      bytes: base64String,
+    });
+  } catch (error) {
+    console.error("Error details:", error);
+    res.status(500).send(`Error fetching data: ${error.message}`);
+  }
+});
+
+app.get("/moon-image-bytes-pix", async (req, res) => {
+  const date = getCurrentDate();
+
+  try {
+    const response = await axios.get(
+      `https://svs.gsfc.nasa.gov/api/dialamoon/${date}`
+    );
+
+    const imageUrl = response.data.image.url;
+    const originalImage = await Jimp.read(imageUrl);
+
+    // Scale to 480x480
+    const processedImage = originalImage.resize(48, 48, Jimp.RESIZE_BICUBIC);
     const pixelImage = processedImage.resize(
       480,
       480,
