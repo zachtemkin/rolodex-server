@@ -161,7 +161,7 @@ app.get("/moon-image-bytes", async (req, res) => {
     const originalImage = await Jimp.read(imageUrl);
 
     // Scale to 480x480
-    const processedImage = originalImage.resize(48, 48, Jimp.RESIZE_BICUBIC);
+    const processedImage = originalImage.resize(32, 32, Jimp.RESIZE_BICUBIC);
     const pixelImage = processedImage.resize(
       480,
       480,
